@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html class="no-js">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+        <title></title>
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width">
+        <script src="js/json2.js"></script>
+        <link rel="stylesheet" type="text/css" href="css/bootstrap.min.css">
+        
+        <script src="js/jquery-2.0.3.min.js"></script>
+        <script src="js/d3.v3.min.js"></script>
+        <script src="js/underscore.js"></script>
+        <script src="js/dijkstra.js"></script>
+
+        <script src="js/draw.js"></script>
+        <script src="js/node.js"></script>
+        <script src="js/graph.js"></script>
+        <script src="js/link.js"></script>
+        <script src="js/utils.js"></script>
+
+        <script src="levels/thedaddy.js"></script>
+        <style>
+            body {
+                background-color:orange;
+            }
+            .node {
+              stroke: #fff;
+              stroke-width: 1.5px;
+            }
+
+            .link {
+              stroke: #999;
+              stroke-opacity: .6;
+            }
+
+            .node text {
+              color:black;
+              pointer-events: none;
+              font: 16px sans-serif;
+            }
+
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <div class="row">
+                <div class="col-12">
+                    <h1>The labyrinth <span id="node-number"></span></h1>
+                </div>
+            </div>
+            <div class="row">
+                <h2 class="col-12">Select the level
+                    <div class="btn-group">
+                        <button data-maze-name="easy" class="maze-button btn btn-default">Easy</button>
+                        <button data-maze-name="pacman" class="maze-button btn btn-default">Pacman</button>
+                        <button data-maze-name="glasgow" class="maze-button btn btn-default">Glasgow</button>
+                        <button data-maze-name="chucknorris" class="maze-button btn btn-default">Chucknorris</button>
+                        <button data-maze-name="lucifer" class="maze-button btn btn-default">Lucifer</button>
+                        <button data-maze-name="thedaddy" class="maze-button btn btn-default">Thedaddy</button>
+                    </div>
+                </h2>
+            </div>
+            <div class="row">
+                <h2 class="col-12">Actions
+                    <div class="btn-group">
+                        <button id="draw-maze" class="btn btn-default">Draw</button>
+                        <button id="reduce-leaves" class="btn btn-default">Remove dead branches</button>
+                        <button id="reduce-links" class="btn btn-default">Reduce links (break solve)</button>
+                        <button id="minimize" class="btn btn-default">Generate minimized (break solve)</button>
+                        <button id="solve" class="btn btn-default">Solve</button>
+                    </div>
+                </h2>
+            </div>
+        </div>
+        <div id="maze"></div>
+        <div class="row">    
+                <div class="col-12">
+                    <textarea id="solution" class="form-control" rows="10"></textarea>
+                </div>
+                <div class="col-12">
+                    <textarea id="solutionCost" class="form-control" rows="1"></textarea>
+                </div>
+            </div>
+        <script>
+            var maze;
+
+            function loadLevel(name) {
+                var mazeJson = getLevelJSON(name);
+                var maze = new Graph();
+                var node;
+
+                for (var index in mazeJson) {
+                    var nodeJson = mazeJson[index];
+                    nodeJson.mazeName = name;
+                    node = new Node(mazeJson[index]);
+                   
+                    maze.addNode(node);
+                }
+                maze.stabilize();
+                return maze;
+            }
+
+            function drawMaze(){
+                $('#maze-graph').remove();
+                draw('#maze',maze.getNodeArray(), maze.getLinksArray(), maze.getNodeArray().length<30)
+            }
+
+
+
+            function updateNodeNumber(){
+                $('#node-number').text(maze.getNodeArray().length);
+            }
+
+            $('#draw-maze').click(function(){
+                drawMaze();
+            });
+
+            $('#reduce-leaves').click(function(){
+                maze.reduceDeadEnd();
+            });
+
+            $('#reduce-links').click(function(){
+                maze.reduceLinks();
+            });
+
+            $('#minimize').click(function(){
+                maze.generateMinNodeMaze();
+            });
+
+            $('#solve').on('click', function(e){
+                path = maze.findShortestPath();
+                $('#solution').val(path);
+                $('#solutionCost').val(path.length);
+            });
+
+            $('.maze-button').on('click', function(e){
+                mazeName = $(e.currentTarget).data('maze-name');
+                maze = loadLevel(mazeName);
+            });
+
+
+         </script>
+    </body>
+</html>
+
+
+

@@ -1,0 +1,5 @@
+generateMinNodeMaze: 27754.007ms 
+
+optmize getStart,getStop,getPowerpills
+generateMinNodeMaze: 26851.978ms 
+generateMinNodeMaze: 28678.546ms 

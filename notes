@@ -1,0 +1,47 @@
+var i=10; while (i--) maze.removeMostExpensiveConnectionOfEachNode();
+
+
+
+Last level
+	powerPill = 27;
+[]
+
+//find rounds
+var a = maze.findWalkableSolution();
+var ret = [],
+	tmp;
+
+for (var i=0; i<a.length; i++) {
+	tmp = [];
+	for (var j=0; j<a[i].length; j++) {
+		tmp.push(maze.findIndexById(a[i][j]));
+	}
+	ret.push(tmp);
+}
+
+//rounds founded
+var checkAgainst = _.flatten([[22,23,26],[24,25,27],[3,4,2,12,18,16,19,13,8,5,7,9,14,10,6],[15,11,17,20,21]])
+var complete = _.range(0, 28, 1); 
+_.difference(complete,checkAgainst);
+
+
+var combination = [[1],[2],[22,23,26],[24,25,27],[3,4,2,12,18,16,19,13,8,5,7,9,14,10,6],[15,11,17,20,21]]
+var keys = [];
+$.each(combination,function(i,el){
+	console.log(el,i)
+	keys.push($.map(el,function(el, i){
+		console.log(el,i)
+		return maze.getNodeArray()[el].getId()
+	}));
+});
+
+
+{"cde25629-8229-429d-a32a-80f17d79dce5":
+a8fc130b-1763-49ca-b7a8-50a8306fde3a
+
+
+
+["a8fc130b-1763-49ca-b7a8-50a8306fde3a", "110259c2-ca75-472c-a727-8d06cf557342", "2f354f91-c8e2-4a97-b612-a5c3c5dbb4e8", "37fbcfe5-7060-4867-beaf-448e03af4440", "dca28825-6297-4a67-b281-563f953bed33", "34b31e45-a2aa-4e58-b5e6-6ced57c56751", "3fae9a1c-b7d4-472a-98f5-8bd1ace3d88e", "fa4372fd-b582-4440-bebb-51694f9879f2", "9423f101-a6cd-45a5-8628-b0529089c6b1", "26d54080-509e-48cd-bcb6-fe7b9ad07b0b", "dbdb09fd-53a2-4c0b-a6f7-2a54a7a43da8", "95d4f117-abba-4e21-a470-77bb0bae2526", "702279ec-79d8-4193-81a8-be7108c14dae", "0c1fa794-c11b-42bb-8de9-2a764db7483e", "025746df-eb02-4655-80ba-5d22e1c74b54", "862508d7-a2f2-4354-bed3-7f908c0fd132", "e89f0b23-030b-47cd-9d32-c12e5dea4d31", "6dff4c08-d89a-4da2-a5f1-1d86a3cb2a96", "298d67bd-aace-484a-804a-12de89f0eb46", "c5680786-c76c-4925-b38e-52f841dbcb73", "a1359cb0-2127-4886-8963-a9c9f39480d5", "4e283fe1-ac13-4730-af59-ce9bb2c439fc", "d0614395-41e0-4a7e-9931-db4b084b8dec", "367a73d7-ba33-4aac-a563-02478b511d88", "483124d3-5fa0-4775-b400-0d206003241c", "5cb7e71a-6fa4-4061-b8d2-38b7473fd7b2", "0bfdc699-00ef-4021-9624-f83ee31f216c", "4fcebdc8-99d9-4523-b520-0d8a6c47e958", "d1519c85-f31b-41c0-ab55-93cb013e0ed3"]
+
+
+You are The Daddy! If you'd like to work for LBi send an email with your CV to jim.macaulay@lbi.com with a subject of 'I am the Daddy'

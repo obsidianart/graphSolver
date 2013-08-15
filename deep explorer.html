@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html class="no-js">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+        <title>Maze downloader</title>
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width">
+        <link rel="stylesheet" type="text/css" href="css/bootstrap.min.css">
+        <script src="js/json2.js"></script>
+        <script src="js/jquery-2.0.3.min.js"></script>
+    </head>
+    <body>
+        <div class="container">
+            <div class="row">
+                <div class="col-12">
+                    <h1>Click the maze to download</h1>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-12">
+                    <div class="btn-group">
+                        <button data-maze-name="easy" class="maze-button btn btn-default">Easy</button>
+                        <button data-maze-name="pacman" class="maze-button btn btn-default">Pacman</button>
+                        <button data-maze-name="glasgow" class="maze-button btn btn-default">Glasgow</button>
+                        <button data-maze-name="chucknorris" class="maze-button btn btn-default">Chucknorris</button>
+                        <button data-maze-name="lucifer" class="maze-button btn btn-default">Lucifer</button>
+                        <button data-maze-name="thedaddy" class="maze-button btn btn-default">Thedaddy</button>                        
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-4">Node checked: <span id="checked-node">0</span></div>
+                <div class="col-4">Node to check: <span id="tocheck-node">0</span></div>
+                <button class="btn btn-default" id="show-json">Show the JSON</button>
+                <button class="btn btn-default" id="recheck">Recheck</button>
+            </div>
+            <div class="row">    
+                <div class="col-12">
+                    <textarea id="solution" class="form-control" rows="20"></textarea>
+                </div>
+            </div>
+        </div>
+        <script>
+            var maze = {}; //Keep the whole maze, locationId as key
+            var labyrinthUrl = "http://labyrinth.lbi.co.uk" //Base Url
+            var mazeUrl = "/Maze/Location"; //Maze url
+            var mazeName = "easy" //Maze name
+            var mazeLenght = 0; //Lenght of the maze
+            var mazePills = 0; //Number of pills in the maze
+            var requested = 0;
+            var attemptNumber = 0;
+
+            //Explore the tree from a locationId
+            var explore = function(locationId){
+                if (maze[locationId] && maze[locationId]!="waiting"+(attemptNumber-1))
+                    return maze[locationId];
+
+                //if (maze[locationId]) return maze[locationId];
+                //Avoid visited Nodes
+                //if (maze[locationId]) return maze[locationId];
+                if (locationId!=='start') maze[locationId]="waiting"+attemptNumber;
+
+                //Avoid infinite loop
+                if (requested++>1000000000) {
+                    console.log("are you in a loop?");
+                    return false;
+                }
+
+                addTocheckNodeCount();
+
+                $.ajax({
+                    url: getMazeUrl(locationId),
+                    dataType : 'json',
+                }).success(function(data){
+                    for (var i=0; i<data.Exits.length; i++) {
+                        addNodeCount();
+                        explore(getNodeLocationId(data.Exits[i]));
+                    }
+                    threatNode(data);
+                }).always(function(){
+                    removeTocheckNodeCount();
+                }).error(function(a,b,c){
+                    console.log(a,b,c)
+                });
+            };
+
+            var getMazeUrl = function(locationId){
+                return labyrinthUrl + mazeUrl + '/' + mazeName + '/' + locationId + '/' + 'json';
+            };
+
+            var getNodeLocationId = function(url) {
+                return url.replace(mazeUrl + '/' + mazeName + '/','');
+            }
+
+            var threatNode = function(node) {
+                mazeLenght++;
+                //if (node.LocationType === "Start") {}
+                //if (node.LocationType === "Exit") {}
+                if (node.LocationType !== "Normal") {
+                    console.log(node.LocationType)
+                }
+                maze[node.LocationId] = node;
+
+            }
+
+            var $nodeCount = $('#checked-node');
+            function addNodeCount(){
+                $nodeCount.text(parseInt($nodeCount.text())+1);
+            }
+
+            var $tocheckNodeCount = $('#tocheck-node');
+            function addTocheckNodeCount(){
+                $tocheckNodeCount.text(parseInt($tocheckNodeCount.text())+1);
+            }
+            function removeTocheckNodeCount(){
+                $tocheckNodeCount.text(parseInt($tocheckNodeCount.text())-1);
+            }
+            
+
+            $('.maze-button').on('click', function(e){
+                mazeName = $(e.currentTarget).data('maze-name');
+                attemptNumber=0;
+                maze = {};
+                explore('start');
+            });
+
+            $('#show-json').click(function(){
+                $('#solution').val(JSON.stringify(maze))
+            })
+
+            $('#recheck').click(function(){
+                attemptNumber++;
+                requested = 0;
+                explore('start');
+            })
+
+            //explore('start');
+            //$('body').append(JSON.stringify(maze))
+        </script>
+    </body>
+</html>
+
+
+
