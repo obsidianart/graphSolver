@@ -7,8 +7,8 @@
         <meta name="description" content="">
         <meta name="viewport" content="width=device-width">
         <link rel="stylesheet" type="text/css" href="css/bootstrap.min.css">
-        <script src="js/json2.js"></script>
-        <script src="js/jquery-2.0.3.min.js"></script>
+        <script src="js/libs/json2.js"></script>
+        <script src="js/libs/jquery-2.0.3.min.js"></script>
     </head>
     <body>
         <div class="container">
@@ -39,10 +39,17 @@
                 <div class="col-12">
                     <textarea id="solution" class="form-control" rows="20"></textarea>
                 </div>
+                <div class="col-12">
+                    <textarea id="converter" class="form-control" rows="20"></textarea>
+                </div>
             </div>
         </div>
         <script>
+            //This is a small utility do download the graph from the LBi labirith
+
             var maze = {}; //Keep the whole maze, locationId as key
+            var mazeHash = {} //Keep a table of short id to long-id
+            var mazeHashCounter = 0;
             var labyrinthUrl = "http://labyrinth.lbi.co.uk" //Base Url
             var mazeUrl = "/Maze/Location"; //Maze url
             var mazeName = "easy" //Maze name
@@ -52,18 +59,20 @@
             var attemptNumber = 0;
 
             //Explore the tree from a locationId
-            var explore = function(locationId){
-                if (maze[locationId] && maze[locationId]!="waiting"+(attemptNumber-1))
-                    return maze[locationId];
+            function explore(locationId){
+                var sid = getShortIdfromId(locationId);
+
+                if (maze[sid] && maze[sid]!="waiting"+(attemptNumber-1))
+                    return maze[sid];
 
                 //if (maze[locationId]) return maze[locationId];
                 //Avoid visited Nodes
                 //if (maze[locationId]) return maze[locationId];
-                if (locationId!=='start') maze[locationId]="waiting"+attemptNumber;
+                if (locationId!=='start') maze[sid]="waiting"+attemptNumber;
 
                 //Avoid infinite loop
                 if (requested++>1000000000) {
-                    console.log("are you in a loop?");
+                    console.error("Are you in a loop?");
                     return false;
                 }
 
@@ -93,21 +102,49 @@
                 return url.replace(mazeUrl + '/' + mazeName + '/','');
             }
 
-            var threatNode = function(node) {
+            function threatNode(node) {
                 mazeLenght++;
+                var shortId = getShortIdfromId(node.LocationId);
+                var exitId;
+                
+                for (var i=0; i<node.Exits.length; i++) {
+                    exitId = getNodeLocationId(node.Exits[i]);
+                    node.Exits[i] = getShortIdfromId(exitId);
+                }
+
+                node.LocationId = getShortIdfromId(node.LocationId)
+
+                maze[shortId] = node;
+
                 //if (node.LocationType === "Start") {}
                 //if (node.LocationType === "Exit") {}
-                if (node.LocationType !== "Normal") {
-                    console.log(node.LocationType)
-                }
-                maze[node.LocationId] = node;
-
+                if (node.LocationType !== "Normal") { console.log(node.LocationType) }
+                
             }
+
+            function getShortIdfromId(id){
+                console.log("getting ",id)
+                if (id in mazeHash) {
+                    return mazeHash[id];
+                } else {
+                    var sid = 'a'+ mazeHashCounter;
+                    mazeHashCounter++;
+                    mazeHash[id] = sid;
+                    return sid;
+                }
+            }
+            
+            function getIdFromShortId(shortId){
+                //return mazeHash[shortId];
+            }
+
 
             var $nodeCount = $('#checked-node');
             function addNodeCount(){
                 $nodeCount.text(parseInt($nodeCount.text())+1);
             }
+
+
 
             var $tocheckNodeCount = $('#tocheck-node');
             function addTocheckNodeCount(){
@@ -127,6 +164,7 @@
 
             $('#show-json').click(function(){
                 $('#solution').val(JSON.stringify(maze))
+                $('#converter').val(JSON.stringify(mazeHash))
             })
 
             $('#recheck').click(function(){
