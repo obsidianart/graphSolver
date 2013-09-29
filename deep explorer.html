@@ -45,8 +45,6 @@
             </div>
         </div>
         <script>
-            //This is a small utility do download the graph from the LBi labirith
-
             var maze = {}; //Keep the whole maze, locationId as key
             var mazeHash = {} //Keep a table of short id to long-id
             var mazeHashCounter = 0;
@@ -59,20 +57,18 @@
             var attemptNumber = 0;
 
             //Explore the tree from a locationId
-            function explore(locationId){
-                var sid = getShortIdfromId(locationId);
-
-                if (maze[sid] && maze[sid]!="waiting"+(attemptNumber-1))
-                    return maze[sid];
+            var explore = function(locationId){
+                if (maze[locationId] && maze[locationId]!="waiting"+(attemptNumber-1))
+                    return maze[locationId];
 
                 //if (maze[locationId]) return maze[locationId];
                 //Avoid visited Nodes
                 //if (maze[locationId]) return maze[locationId];
-                if (locationId!=='start') maze[sid]="waiting"+attemptNumber;
+                if (locationId!=='start') maze[locationId]="waiting"+attemptNumber;
 
                 //Avoid infinite loop
                 if (requested++>1000000000) {
-                    console.error("Are you in a loop?");
+                    console.log("Are you in a loop?");
                     return false;
                 }
 
@@ -104,38 +100,12 @@
 
             function threatNode(node) {
                 mazeLenght++;
-                var shortId = getShortIdfromId(node.LocationId);
-                var exitId;
-                
-                for (var i=0; i<node.Exits.length; i++) {
-                    exitId = getNodeLocationId(node.Exits[i]);
-                    node.Exits[i] = getShortIdfromId(exitId);
-                }
-
-                node.LocationId = getShortIdfromId(node.LocationId)
-
-                maze[shortId] = node;
+                maze[node.LocationId] = node;
 
                 //if (node.LocationType === "Start") {}
                 //if (node.LocationType === "Exit") {}
                 if (node.LocationType !== "Normal") { console.log(node.LocationType) }
                 
-            }
-
-            function getShortIdfromId(id){
-                console.log("getting ",id)
-                if (id in mazeHash) {
-                    return mazeHash[id];
-                } else {
-                    var sid = 'a'+ mazeHashCounter;
-                    mazeHashCounter++;
-                    mazeHash[id] = sid;
-                    return sid;
-                }
-            }
-            
-            function getIdFromShortId(shortId){
-                //return mazeHash[shortId];
             }
 
 
